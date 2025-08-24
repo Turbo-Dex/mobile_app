@@ -70,7 +70,7 @@ class AppRouter {
 }
 
 class _HomeShell extends StatelessWidget {
-  const _HomeShell({super.key, required this.navigationShell});
+  const _HomeShell({Key? key, required this.navigationShell}) : super(key: key);
 
   final StatefulNavigationShell navigationShell;
 
@@ -116,7 +116,7 @@ class _HomeShell extends StatelessWidget {
 }
 
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({super.key, required this.title});
+  const _Placeholder({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
