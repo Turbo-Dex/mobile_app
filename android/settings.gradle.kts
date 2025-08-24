@@ -1,12 +1,18 @@
 pluginManagement {
-    // Nécessite FLUTTER_HOME défini (voir plus bas)
+    // Try FLUTTER_HOME first, then fallback to FLUTTER_ROOT (used in CI/CD)
     val flutterSdk = System.getenv("FLUTTER_HOME")
+        ?: System.getenv("FLUTTER_ROOT")
         ?: throw GradleException(
-            "FLUTTER_HOME is not set. Set it to your Flutter SDK path.\n" +
-                    "Example (Linux/macOS): export FLUTTER_HOME=\$(dirname \$(dirname \$(which flutter)))"
+            """
+            Neither FLUTTER_HOME nor FLUTTER_ROOT are set.
+            Please configure your Flutter SDK path.
+
+            Example (Linux/macOS):
+              export FLUTTER_HOME=$(dirname $(dirname $(which flutter)))
+            """.trimIndent()
         )
 
-    // Donne accès au plugin Flutter
+    // Give access to Flutter Gradle tools
     includeBuild("$flutterSdk/packages/flutter_tools/gradle")
 
     repositories {
