@@ -1,28 +1,22 @@
-// App theme class
-
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
 class TurboDexTheme {
   static ThemeData light({TextTheme? textTheme}) {
-    final colorScheme = ColorScheme(
-      brightness: Brightness.light,
+    final base = ThemeData.light(useMaterial3: true);
+    final colorScheme = base.colorScheme.copyWith(
       primary: TdxColors.red,
       onPrimary: Colors.white,
-      secondary: const Color(0xFF262626),
-      onSecondary: Colors.white,
+      surface: TdxColors.offWhite,
+      onSurface: TdxColors.black,
       error: TdxColors.error,
       onError: Colors.white,
-      background: TdxColors.offWhite,
-      onBackground: TdxColors.black,
-      surface: Colors.white,
-      onSurface: TdxColors.black,
+      // pas de background/onBackground
     );
 
-    return ThemeData(
-      useMaterial3: true,
+    return base.copyWith(
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,

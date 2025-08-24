@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/app/app.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   testWidgets('App boots on Capture and navigates across 5 tabs',

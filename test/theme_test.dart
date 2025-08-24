@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/app/theme/theme.dart';
-import 'package:mobile_app/app/theme/colors.dart';
 
 void main() {
   test('Primary color is red and background is off-white', () {
