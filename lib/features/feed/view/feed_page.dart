@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/tdx_scaffold.dart';
 
-class MyCarsPage extends StatelessWidget {
-  const MyCarsPage({super.key});
+class FeedPage extends StatelessWidget {
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const TdxScaffold(
-      title: 'My Cars',
-      body: Center(child: Text('Your captured cars + filters + showcase')),
+      title: 'Feed',
+      body: Center(child: Text('World & Friends feed here')),
     );
   }
 }
