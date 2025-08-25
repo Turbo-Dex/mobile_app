@@ -6,12 +6,17 @@ import '../features/feed/view/feed_page.dart';
 import '../features/my_cars/view/my_cars_page.dart';
 import '../features/profile/view/profile_page.dart';
 import '../features/turbodex/view/turbodex_page.dart';
+import '../features/design/design_page.dart';
 
 class AppRouter {
   static GoRouter build() {
     return GoRouter(
       initialLocation: '/shell/capture',
       routes: [
+        GoRoute(
+          path: '/design',
+          builder: (context, state) => const DesignPage(),
+        ),
         GoRoute(
           path: '/login',
           builder: (context, state) => const _Placeholder(title: 'Login'),
