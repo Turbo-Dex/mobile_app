@@ -12,6 +12,7 @@ class TdxColors {
   static const warning = Color(0xFFF39C12);
   static const error = Color(0xFFE74C3C);
 
+
   // Neutrals (dérivés pour offWhite)
   static const neutral700 = Color(0xFF2A2A2A);
   static const neutral600 = Color(0xFF4D4D4D);
