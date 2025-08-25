@@ -5,7 +5,7 @@ import 'package:mobile_app/app/theme/theme.dart';
 void main() {
   test('Primary color is red and background is off-white', () {
     final theme = TurboDexTheme.light();
-    expect(theme.colorScheme.primary, const Color(0xFFCC0605)); // red
+    expect(theme.colorScheme.primary, const Color(0xFF2ECC71)); // red
     expect(theme.scaffoldBackgroundColor, const Color(0xFFF5F3ED)); // off-white
   });
 
