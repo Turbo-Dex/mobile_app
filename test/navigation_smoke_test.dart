@@ -5,7 +5,7 @@ import 'package:mobile_app/app/app.dart';
 void main() {
   testWidgets('App boots on Capture and navigates across 5 tabs',
           (tester) async {
-        await tester.pumpWidget(const ProviderScope(child: TurboDexApp()));
+        await tester.pumpWidget(ProviderScope(child: TurboDexApp()));
         await tester.pumpAndSettle();
 
         // Tabs labels are present
