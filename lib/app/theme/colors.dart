@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class TdxColors {
   // Turbodex graphical chart
-  static const Color red = Color(0xFFCC0605);
+  static const Color red = Color(0xFF2ECC71);
   static const Color offWhite = Color(0xFFF5F3ED);
   static const Color black = Color(0xFF000000);
 
