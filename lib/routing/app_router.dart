@@ -7,22 +7,31 @@ import '../features/my_cars/view/my_cars_page.dart';
 import '../features/profile/view/profile_page.dart';
 import '../features/turbodex/view/turbodex_page.dart';
 import '../features/design/design_page.dart';
+import '../features/auth/view/login_page.dart';
+import '../features/auth/view/recovery_code_page.dart';
 
 class AppRouter {
   static GoRouter build() {
     return GoRouter(
-      initialLocation: '/shell/capture',
+      initialLocation: '/login', // ✅ login est en dehors du shell
       routes: [
+        // Auth routes
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: '/recovery-code',
+          builder: (context, state) => const RecoveryCodePage(),
+        ),
+
+        // Design page (debug only)
         GoRoute(
           path: '/design',
           builder: (context, state) => const DesignPage(),
         ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const _Placeholder(title: 'Login'),
-        ),
 
-        // Bottom nav shell (5 onglets)
+        // ✅ Bottom nav shell après login
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>
               _HomeShell(navigationShell: navigationShell),
@@ -73,6 +82,7 @@ class AppRouter {
     );
   }
 }
+
 
 class _HomeShell extends StatelessWidget {
   const _HomeShell({Key? key, required this.navigationShell}) : super(key: key);
