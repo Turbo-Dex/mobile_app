@@ -13,7 +13,7 @@ import '../features/auth/view/recovery_code_page.dart';
 class AppRouter {
   static GoRouter build() {
     return GoRouter(
-      initialLocation: '/login', // ✅ login est en dehors du shell
+      initialLocation: '/shell/capture', // ✅ login est en dehors du shell
       routes: [
         // Auth routes
         GoRoute(
