@@ -1,26 +1,23 @@
-// Helper class that give a pre-configured Dio instance for all HTTP request
-
 import 'package:dio/dio.dart';
-import '../config/app_env.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/config/app_env.dart'; // si tu as un AppEnv, sinon enlève
 
-class DioClient {
-  DioClient._(); // Private constructor
+/// Provider unique de Dio utilisé par toute l’app.
+/// Lis: ref.read(dioProvider)
+final dioProvider = Provider<Dio>((ref) {
+  final baseUrl = AppEnv.apiBaseUrl; // ou const String.fromEnvironment('API_BASE_URL');
+  final dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 20),
+    headers: {'Content-Type': 'application/json'},
+  ));
 
-  static Dio build() { // Get configured instance
-    final dio = Dio(BaseOptions(
-      baseUrl: AppEnv.apiBaseUrl, // API URL
-      connectTimeout: const Duration(seconds: 10), // TIMEOUT connection
-      receiveTimeout: const Duration(seconds: 20), // TIMEOUT response
-    ));
+  // Intercepteur simple pour bearer si tu as l’auth
+  // final auth = ref.read(authControllerProvider);
+  // if (auth.accessToken != null) {
+  //   dio.options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
+  // }
 
-    /// TODO : Add interceptors (auth / logging / retry).
-    dio.interceptors.add(LogInterceptor(
-      requestBody: false,
-      responseBody: false,
-      requestHeader: false,
-      responseHeader: false,
-      error: true,
-    ));
-    return dio;
-  }
-}
+  return dio;
+});

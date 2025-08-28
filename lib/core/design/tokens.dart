@@ -8,11 +8,11 @@ class TdxSpace {
 }
 
 class TdxRadius {
-  static const r8 = Radius.circular(8);
-  static const r12 = Radius.circular(12);
-  static const r16 = Radius.circular(16);
-  static const r24 = Radius.circular(24);
-  static const card = BorderRadius.all(r16);
-  static const BorderRadius chip = BorderRadius.all(Radius.circular(20));
-  static const BorderRadius pill = BorderRadius.all(Radius.circular(999));
+  static final r8 = Radius.circular(8);
+  static final r12 = Radius.circular(12);
+  static final  r16 = Radius.circular(16);
+  static final  r24 = Radius.circular(24);
+  static final card = BorderRadius.all(r16);
+  static final chip = BorderRadius.all(Radius.circular(20));
+  static final pill = BorderRadius.all(Radius.circular(999));
 }
