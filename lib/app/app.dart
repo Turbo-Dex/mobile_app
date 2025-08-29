@@ -1,19 +1,21 @@
+// lib/app/app.dart
 import 'package:flutter/material.dart';
-import '../routing/app_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/routing/app_router.dart';
 import 'theme/theme.dart';
 
-class TurboDexApp extends StatelessWidget {
-  const TurboDexApp({Key? key}) : super(key: key);
-
-  static final _router = AppRouter.build();
+class TurboDexApp extends ConsumerWidget {
+  const TurboDexApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
       title: 'TurboDex',
-      theme: TurboDexTheme.light(),
-      routerConfig: _router,
+      debugShowCheckedModeBanner: false,
+      theme: TdxTheme.light,
+      routerConfig: ref.watch(appRouterProvider),
     );
   }
 }
+
+

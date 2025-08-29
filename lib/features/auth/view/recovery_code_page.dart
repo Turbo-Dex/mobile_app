@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/design/tokens.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../auth/model/auth_models.dart';
-import 'package:flutter/services.dart';
 
 class RecoveryCodePage extends ConsumerStatefulWidget {
   const RecoveryCodePage({Key? key}) : super(key: key);
@@ -18,15 +19,20 @@ class _RecoveryCodePageState extends ConsumerState<RecoveryCodePage> {
   String? _error;
 
   Future<void> _generate() async {
-    final access = ref.read(authControllerProvider).accessToken;
-    if (access == null) {
+    final auth = ref.read(authControllerProvider);
+    if (auth.accessToken == null) {
       setState(() => _error = 'Please sign in first');
       return;
     }
-    setState(() { _loading = true; _error = null; });
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
     try {
-      final repo = ref.read(authRepoProvider);
-      final code = await repo.generateRecoveryCode(access);
+      final code =
+      await ref.read(authControllerProvider.notifier).generateRecoveryCode();
       setState(() => _code = code);
     } catch (_) {
       setState(() => _error = 'Could not get a recovery code');
@@ -39,7 +45,8 @@ class _RecoveryCodePageState extends ConsumerState<RecoveryCodePage> {
     if (_code == null) return;
     await Clipboard.setData(ClipboardData(text: _code!.code));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
     }
   }
 
@@ -58,7 +65,11 @@ class _RecoveryCodePageState extends ConsumerState<RecoveryCodePage> {
             ),
             const SizedBox(height: 16),
             if (_error != null) ...[
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text(
+                _error!,
+                style:
+                TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
               const SizedBox(height: 8),
             ],
             if (_code != null) ...[
@@ -72,7 +83,10 @@ class _RecoveryCodePageState extends ConsumerState<RecoveryCodePage> {
                 child: SelectableText(
                   _code!.code,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(letterSpacing: 2),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(letterSpacing: 2),
                 ),
               ),
               const SizedBox(height: 12),
@@ -82,7 +96,11 @@ class _RecoveryCodePageState extends ConsumerState<RecoveryCodePage> {
             ElevatedButton(
               onPressed: _loading ? null : _generate,
               child: _loading
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
                   : const Text('Generate recovery code'),
             ),
           ],
