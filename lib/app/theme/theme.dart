@@ -1,11 +1,12 @@
 // lib/app/theme/theme.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'colors.dart'; // même dossier
+
+import 'colors.dart';
 
 class TdxTheme {
   static ThemeData get light {
-    // Pas de `const` ici -> certaines couleurs peuvent ne pas être const
+    // Pas de `const` ici : certains champs ne sont pas const (fonts, etc.)
     final scheme = ColorScheme(
       brightness: Brightness.light,
       primary: TdxColors.red,
@@ -22,7 +23,8 @@ class TdxTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: TdxColors.offWhite,
-      // Montserrat
+
+      // Montserrat partout
       fontFamily: GoogleFonts.montserrat().fontFamily,
 
       appBarTheme: const AppBarTheme(
@@ -76,6 +78,7 @@ class TdxTheme {
         ),
       ),
 
+      // Flutter 3.22+ : cardTheme = CardThemeData
       cardTheme: const CardThemeData(
         color: Colors.white,
         elevation: 0,
@@ -86,3 +89,4 @@ class TdxTheme {
     );
   }
 }
+

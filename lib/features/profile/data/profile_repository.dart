@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/friend.dart';
 import '../model/user_profile.dart';
+import '../model/liked_post.dart';
 
-/// Contrat: garde ces signatures quand tu brancheras l’API.
+/// Contrat (garde ces signatures quand tu brancheras l’API).
 abstract class IProfileRepository {
   Future<UserProfile> me();
   Future<List<Friend>> friends();
@@ -19,6 +20,9 @@ abstract class IProfileRepository {
     required String oldPassword,
     required String newPassword,
   });
+
+
+Future<List<LikedPost>> liked();
 }
 
 /// Provider du repo
@@ -28,6 +32,8 @@ final profileRepositoryProvider = Provider<IProfileRepository>(
 
 /// Démo in-memory pour faire tourner l’UI sans backend
 class DemoProfileRepository implements IProfileRepository {
+  static const _latency = Duration(milliseconds: 200);
+
   static UserProfile _me = const UserProfile(
     username: 'yourname',
     displayName: 'Your Name',
@@ -39,21 +45,42 @@ class DemoProfileRepository implements IProfileRepository {
     const Friend(username: 'speedster', displayName: 'Speedster'),
   ];
 
+  // Démo : posts likés (même si l’UI ne les consomme pas aujourd’hui).
+  // IMPORTANT : correspond exactement au modèle LikedPost que tu as donné.
+  static final List<LikedPost> _liked = <LikedPost>[
+    LikedPost(
+      id: 'p1',
+      vehicle: 'Tesla Model S',
+      city: 'Lausanne',
+      likedAt: DateTime.now().subtract(const Duration(days: 2)),
+      imageUrl: 'https://picsum.photos/seed/tdx1/1200/800',
+      postLink: 'https://example.com/posts/1',
+    ),
+    LikedPost(
+      id: 'p2',
+      vehicle: 'Porsche 911',
+      city: 'Zürich',
+      likedAt: DateTime.now().subtract(const Duration(days: 3)),
+      imageUrl: 'https://picsum.photos/seed/tdx2/1200/800',
+      postLink: 'https://example.com/posts/2',
+    ),
+  ];
+
   @override
   Future<UserProfile> me() async {
-    await Future<void>.delayed(const Duration(milliseconds: 200));
+    await Future<void>.delayed(_latency);
     return _me;
   }
 
   @override
   Future<List<Friend>> friends() async {
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    await Future<void>.delayed(_latency);
     return List<Friend>.unmodifiable(_friends);
   }
 
   @override
   Future<void> follow(String username) async {
-    await Future<void>.delayed(const Duration(milliseconds: 150));
+    await Future<void>.delayed(_latency);
     if (_friends.any((f) => f.username == username)) return;
     _friends.insert(
       0,
@@ -63,13 +90,13 @@ class DemoProfileRepository implements IProfileRepository {
 
   @override
   Future<void> unfollow(String username) async {
-    await Future<void>.delayed(const Duration(milliseconds: 150));
+    await Future<void>.delayed(_latency);
     _friends.removeWhere((f) => f.username == username);
   }
 
   @override
   Future<UserProfile> updateUsername(String username) async {
-    await Future<void>.delayed(const Duration(milliseconds: 200));
+    await Future<void>.delayed(_latency);
     _me = _me.copyWith(
       username: username,
       // si pas de displayName, on cale sur le nouveau handle pour la démo
@@ -80,7 +107,7 @@ class DemoProfileRepository implements IProfileRepository {
 
   @override
   Future<UserProfile> updateAvatar(String avatarUrl) async {
-    await Future<void>.delayed(const Duration(milliseconds: 200));
+    await Future<void>.delayed(_latency);
     _me = _me.copyWith(avatarUrl: avatarUrl);
     return _me;
   }
@@ -91,7 +118,13 @@ class DemoProfileRepository implements IProfileRepository {
     required String newPassword,
   }) async {
     // Démo: on "accepte" toujours, mais on simule un délai
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    await Future<void>.delayed(_latency);
     // Backend réel: POST /users/me/password { oldPassword, newPassword }
+  }
+
+
+Future<List<LikedPost>> liked() async {
+   await Future<void>.delayed(_latency);
+   return List<LikedPost>.unmodifiable(_liked);
   }
 }

@@ -3,16 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/profile_repository.dart';
 import '../model/friend.dart';
 import '../model/user_profile.dart';
+import '../model/liked_post.dart';
 
 class ProfileState {
   final UserProfile? me;
   final List<Friend> friends;
+  final List<LikedPost> liked;      // <- ajouté
   final bool loading;
   final String? error;
 
   const ProfileState({
     this.me,
     this.friends = const [],
+    this.liked = const [],          // <- ajouté
     this.loading = false,
     this.error,
   });
@@ -24,12 +27,14 @@ class ProfileState {
   ProfileState copyWith({
     UserProfile? me,
     List<Friend>? friends,
+    List<LikedPost>? liked,         // <- ajouté
     bool? loading,
     String? error,
   }) =>
       ProfileState(
         me: me ?? this.me,
         friends: friends ?? this.friends,
+        liked: liked ?? this.liked,  // <- ajouté
         loading: loading ?? this.loading,
         error: error,
       );
@@ -49,18 +54,35 @@ class ProfileController extends StateNotifier<ProfileState> {
 
   IProfileRepository get _repo => ref.read(profileRepositoryProvider);
 
+  /// pour les tests : alias explicite qui appelle refresh()
+  Future<void> init() => refresh();           // <- ajouté
+
   Future<void> refresh() async {
     try {
       state = state.copyWith(loading: true, error: null);
       final me = await _repo.me();
       final friends = await _repo.friends();
-      state = state.copyWith(me: me, friends: friends, loading: false);
+      final liked = await _repo.liked();      // <- ajouté
+      state = state.copyWith(
+        me: me,
+        friends: friends,
+        liked: liked,                         // <- ajouté
+        loading: false,
+      );
     } catch (_) {
       state = state.copyWith(loading: false, error: 'Failed to load profile');
     }
   }
 
   // ---------- Social ----------
+  /// Méthode attendue par les tests
+  Future<void> addFriend(String username) async {   // <- ajouté
+    final handle = username.startsWith('@') ? username : '@$username';
+    await _repo.follow(handle);
+    final friends = await _repo.friends();
+    state = state.copyWith(friends: friends);
+  }
+
   Future<void> follow(String username) async {
     await _repo.follow(username);
     final friends = await _repo.friends();
@@ -73,7 +95,7 @@ class ProfileController extends StateNotifier<ProfileState> {
     state = state.copyWith(friends: friends);
   }
 
-  // ---------- Settings (appelées depuis SettingsPage) ----------
+  // ---------- Settings ----------
   Future<void> changeUsername(String username) async {
     try {
       final updated = await _repo.updateUsername(username);
@@ -95,7 +117,6 @@ class ProfileController extends StateNotifier<ProfileState> {
   Future<void> changePassword(String oldPwd, String newPwd) async {
     try {
       await _repo.changePassword(oldPassword: oldPwd, newPassword: newPwd);
-      // pas de changement d’état spécifique ici; SettingsPage affiche ses SnackBars
     } catch (_) {
       state = state.copyWith(error: 'Failed to update password');
     }
