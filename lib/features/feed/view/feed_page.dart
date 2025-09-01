@@ -5,6 +5,7 @@ import '../../../core/design/tokens.dart';
 import '../controller/feed_controller.dart';
 import 'widgets/vehicle_card.dart';
 import '../data/feed_api.dart' show FeedScope;
+import '../../../core/widgets/filters/index.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -45,56 +46,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         controller: _scroll,
         slivers: [
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(TdxSpace.m),
-              child: SegmentedButton(
+            child: TdxFilterBar(
+              leading: Icons.filter_list,
+              child: TdxSegmented<FeedScope>(
                 segments: const [
-                  ButtonSegment(value: FeedScope.world, icon: Icon(Icons.public), label: Text('World')),
-                  ButtonSegment(value: FeedScope.friends, icon: Icon(Icons.group_outlined), label: Text('Friends')),
+                  ButtonSegment(value: FeedScope.world,  label: Text('World'),  icon: Icon(Icons.public)),
+                  ButtonSegment(value: FeedScope.friends,label: Text('Friends'),icon: Icon(Icons.group_outlined)),
                 ],
                 selected: {state.scope},
-                onSelectionChanged: (s) => ctrl.setScope(s.first),
-              ),
-            ),
-          ),
-          if (state.error != null)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(TdxSpace.m),
-                child: Text(state.error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-              ),
-            ),
-          SliverList.builder(
-            itemCount: state.items.length,
-            itemBuilder: (context, i) {
-              final p = state.items[i];
-              return VehicleCard(
-                post: p,
-                onLike: () => ctrl.toggleLike(p.id),
-                onReport: () async {
-                  final reason = await _askReportReason(context);
-                  if (reason != null) ctrl.report(p.id, reason: reason);
-                },
-                onShare: () async {
-                  // Simple: copie le lien du post dans le presse-papier
-                  final url = 'https://turbodex.com/post/${p.id}';
-                  await Clipboard.setData(ClipboardData(text: url));
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied')));
-                  }
-                },
-              );
-            },
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: TdxSpace.l),
-              child: Center(
-                child: state.loading
-                    ? const CircularProgressIndicator()
-                    : (state.nextCursor == null && state.items.isNotEmpty)
-                    ? const Text('You reached the end')
-                    : const SizedBox.shrink(),
+                onChanged: (s) => ctrl.setScope(s.first),
               ),
             ),
           ),

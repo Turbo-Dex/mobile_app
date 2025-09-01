@@ -13,4 +13,6 @@ class TdxRadius {
   static const r16 = Radius.circular(16);
   static const r24 = Radius.circular(24);
   static const card = BorderRadius.all(r16);
+  static const BorderRadius chip = BorderRadius.all(Radius.circular(20));
+  static const BorderRadius pill = BorderRadius.all(Radius.circular(999));
 }
