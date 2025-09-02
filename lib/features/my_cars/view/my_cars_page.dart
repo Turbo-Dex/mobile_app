@@ -122,7 +122,7 @@ class _ShowcaseBar extends ConsumerWidget {
     Widget slot(String? carId) {
       final filled = carId != null;
       return GestureDetector(
-        onTap: filled ? () => ctrl.removeFromShowcase(carId!) : null,
+        onTap: filled ? () => ctrl.removeFromShowcase(carId) : null,
         child: Container(
           width: 86,
           height: 64,
