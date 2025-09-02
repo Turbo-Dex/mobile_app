@@ -140,7 +140,7 @@ class _ShowcaseBar extends ConsumerWidget {
     }
 
     final List<String?> ids = [...s.showcase];
-    while (ids.length < 3) ids.add(null);
+    while (ids.length < 3) {ids.add(null);}
 
     return Padding(
       padding: const EdgeInsets.all(TdxSpace.m),
