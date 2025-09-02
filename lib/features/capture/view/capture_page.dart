@@ -119,7 +119,7 @@ class _CapturePageState extends ConsumerState<CapturePage> with WidgetsBindingOb
                   ? null
                   : () async {
                 await ctrl.captureAndUpload();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 final err = ref
                     .read(captureControllerProvider)
                     .error;
