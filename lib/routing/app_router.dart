@@ -88,7 +88,7 @@ class AppRouter {
 }
 
 class _HomeShell extends StatelessWidget {
-  const _HomeShell({super.key, required this.navigationShell});
+  const _HomeShell({required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
   void _goBranch(int index) {
