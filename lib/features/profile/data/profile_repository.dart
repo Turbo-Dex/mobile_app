@@ -122,7 +122,7 @@ class DemoProfileRepository implements IProfileRepository {
     // Backend réel: POST /users/me/password { oldPassword, newPassword }
   }
 
-
+@override
 Future<List<LikedPost>> liked() async {
    await Future<void>.delayed(_latency);
    return List<LikedPost>.unmodifiable(_liked);
