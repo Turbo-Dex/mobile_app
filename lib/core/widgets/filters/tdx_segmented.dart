@@ -23,18 +23,18 @@ class TdxSegmented<T> extends StatelessWidget {
     final theme = Theme.of(context);
     final style = ButtonStyle(
       foregroundColor:
-      MaterialStateProperty.resolveWith((_) => TdxColors.textPrimary),
-      backgroundColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) return TdxColors.neutral100;
+      WidgetStateProperty.resolveWith((_) => TdxColors.textPrimary),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return TdxColors.neutral100;
         return TdxColors.neutral100;
       }),
-      side: const MaterialStatePropertyAll(
+      side: const WidgetStatePropertyAll(
           BorderSide(color: TdxColors.neutral300)),
-      shape: MaterialStatePropertyAll(
+      shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: TdxRadius.pill)),
-      padding: const MaterialStatePropertyAll(
+      padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-      textStyle: MaterialStatePropertyAll(
+      textStyle: WidgetStatePropertyAll(
         theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
