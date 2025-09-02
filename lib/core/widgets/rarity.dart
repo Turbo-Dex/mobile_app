@@ -29,14 +29,14 @@ class RarityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = rarity.color.withOpacity(0.15);
+    final bg = rarity.color.withValues(alpha:0.15);
     final fg = rarity.color;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: fg.withOpacity(0.4)),
+        border: Border.all(color: fg.withValues(alpha:0.4)),
       ),
       child: Text(
         rarity.label,

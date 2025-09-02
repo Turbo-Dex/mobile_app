@@ -19,7 +19,7 @@ class TdxBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fg = color ?? TdxColors.neutral600;
-    final bg = (color ?? TdxColors.neutral600).withOpacity(0.08);
+    final bg = (color ?? TdxColors.neutral600).withValues(alpha:0.08);
 
     final content = Row(
       mainAxisSize: MainAxisSize.min,

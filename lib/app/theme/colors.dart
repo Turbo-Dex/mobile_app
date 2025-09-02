@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Brand palette — TurboDex
 class TdxColors {
   static const textPrimary = Color(0xFF000000);
-  static Color get textSecondary => textPrimary.withOpacity(0.65);
+  static Color get textSecondary => textPrimary.withValues(alpha:0.65);
 
   // Brand
   static const red = Color(0xFFCC0605);

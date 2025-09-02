@@ -144,7 +144,7 @@ class _DesignPageState extends State<DesignPage> {
                     color: Colors.black12,
                     alignment: Alignment.center,
                     child: Icon(Icons.directions_car_filled_outlined,
-                        size: 64, color: Colors.black.withOpacity(.6)),
+                        size: 64, color: Colors.black.withValues(alpha:.6)),
                   ),
                 ),
                 Padding(

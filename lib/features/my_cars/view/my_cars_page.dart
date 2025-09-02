@@ -101,7 +101,7 @@ class _MyCarsPageState extends ConsumerState<MyCarsPage> {
                       ? const CircularProgressIndicator()
                       : Text(
                     state.nextCursor == null ? 'End of list' : 'Scroll to load more',
-                    style: TextStyle(color: TdxColors.textPrimary.withOpacity(.6)),
+                    style: TextStyle(color: TdxColors.textPrimary.withValues(alpha:.6)),
                   ),
                 ),
               ),
@@ -151,7 +151,7 @@ class _ShowcaseBar extends ConsumerWidget {
           ...ids.map(slot).expand((w) => [w, const SizedBox(width: 8)]).toList()..removeLast(),
           const Spacer(),
           Text('${s.showcase.length}/3',
-              style: TextStyle(color: TdxColors.textPrimary.withOpacity(.6))),
+              style: TextStyle(color: TdxColors.textPrimary.withValues(alpha:.6))),
         ],
       ),
     );
