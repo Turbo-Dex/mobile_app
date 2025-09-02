@@ -50,15 +50,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () async {
               final v = _usernameCtrl.text.trim();
               if (v.isEmpty) return;
+
+              // Take what you need from context BEFORE awaiting:
+              final messenger = ScaffoldMessenger.of(context);
+
               await c.changeUsername(v);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
+
+              // Use the messenger (no context use across await):
+              messenger.showSnackBar(
                 const SnackBar(content: Text('Username updated')),
               );
             },
             child: const Text('Update username'),
           ),
+
           const SizedBox(height: 12),
+
           TextField(
             controller: _avatarCtrl,
             decoration: const InputDecoration(labelText: 'Avatar URL'),
@@ -68,15 +75,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () async {
               final v = _avatarCtrl.text.trim();
               if (v.isEmpty) return;
+
+              final messenger = ScaffoldMessenger.of(context);
+
               await c.changeAvatar(v);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
+
+              messenger.showSnackBar(
                 const SnackBar(content: Text('Avatar updated')),
               );
             },
             child: const Text('Update avatar'),
           ),
+
           const SizedBox(height: 12),
+
           TextField(
             controller: _oldPwdCtrl,
             obscureText: true,
@@ -91,21 +103,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               final np = _newPwdCtrl.text.trim();
+
               if (np.length < 8) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(
                     content: Text('Password must be at least 8 chars'),
                   ),
                 );
                 return;
               }
+
               await c.changePassword(_oldPwdCtrl.text, np);
               _oldPwdCtrl.clear();
               _newPwdCtrl.clear();
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
+
+              messenger.showSnackBar(
                 const SnackBar(content: Text('Password updated')),
               );
             },
