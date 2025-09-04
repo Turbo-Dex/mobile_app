@@ -8,143 +8,87 @@ import '../controller/capture_controller.dart';
 import '../model/capture_result.dart';
 import 'new_vehicle_dialog.dart';
 
-class CapturePage extends ConsumerStatefulWidget {
-  const CapturePage({Key? key}) : super(key: key);
+class CapturePage extends ConsumerWidget {
+  const CapturePage({super.key});
 
   @override
-  ConsumerState<CapturePage> createState() => _CapturePageState();
-}
-
-class _CapturePageState extends ConsumerState<CapturePage>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // Lance l'init caméra/permissions au premier affichage
-    Future.microtask(
-      () => ref.read(captureControllerProvider.notifier).init(),
-    );
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState stateLife) {
-    final cam = ref.read(captureControllerProvider).camera;
-    if (cam == null || !cam.value.isInitialized) return;
-
-    if (stateLife == AppLifecycleState.inactive) {
-      cam.dispose();
-    } else if (stateLife == AppLifecycleState.resumed) {
-      ref.read(captureControllerProvider.notifier).init();
-    }
-  }
-
-  void _showCelebration(CaptureResult res) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'celebration',
-      pageBuilder: (_, __, ___) => NewVehicleDialog(
-        result: res,
-        onClose: () => Navigator.of(context).pop(),
-        onView: () {
-          Navigator.of(context).pop();
-          if (mounted) context.go('/shell/turbodex');
-        },
-      ),
-      transitionBuilder: (ctx, anim, __, child) =>
-          FadeTransition(opacity: anim, child: child),
-      transitionDuration: const Duration(milliseconds: 180),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(captureControllerProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final st = ref.watch(captureControllerProvider);
     final ctrl = ref.read(captureControllerProvider.notifier);
 
-    // Ouvre la célébration quand un nouveau résultat arrive
-    ref.listen<CaptureState>(captureControllerProvider, (prev, next) {
-      final prevRes = prev?.lastResult;
-      final res = next.lastResult;
-      if (res != null && res != prevRes && res.newForUser) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          _showCelebration(res);
-          ref.read(captureControllerProvider.notifier).clearResult();
-        });
-      }
-    });
+    return Scaffold(
+      appBar: AppBar(title: const Text('Capture')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (st.camera == null)
+                ElevatedButton(
+                  onPressed: () => ctrl.init(),
+                  child: const Text('Init camera'),
+                )
+              else
+                const Text('Camera ready'),
 
-    // Permissions non accordées → vue dédiée
-    if (!state.hasPermission) {
-      return _PermissionView(
-        error: state.error,
-        permanentlyDenied: state.permissionPermanentlyDenied,
-        onRequest: () async {
-          final ok = await ctrl.requestPermissions();
-          if (ok) await ctrl.init();
+              const SizedBox(height: 24),
+
+              // ---- Résultat IA (si dispo)
+              if (st.lastResult != null) ...[
+                const Divider(),
+                Text(
+                  'Résultat',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                if (st.lastResult!.processedUrl != null)
+                  Image.network(
+                    st.lastResult!.processedUrl!,
+                    height: 220,
+                    fit: BoxFit.cover,
+                  ),
+                const SizedBox(height: 8),
+                Text('Rareté : ${st.lastResult!.rarity.name}'),
+                Text('Véhicule : ${st.lastResult!.vehicleMake ?? "-"} ${st.lastResult!.vehicleModel ?? ""}'),
+                Text('XP : ${st.lastResult!.xpGained}'),
+                if (st.lastResult!.tags != null && st.lastResult!.tags!.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    children: st.lastResult!.tags!
+                        .take(8)
+                        .map((t) => Chip(label: Text(t)))
+                        .toList(),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: st.busy ? null : () async {
+          try {
+            await ctrl.captureAndUpload();
+            final r = st.lastResult;
+            final messenger = ScaffoldMessenger.maybeOf(context);
+            messenger?.showSnackBar(
+              SnackBar(
+                content: Text(
+                  r?.processedUrl != null
+                      ? '✅ Traitée !'
+                      : '📤 Envoyée, traitement en cours…',
+                ),
+              ),
+            );
+          } catch (e) {
+            ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+              SnackBar(content: Text('Erreur capture: $e')),
+            );
+          }
         },
-      );
-    }
-
-    final camera = state.camera;
-    if (camera == null || !camera.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    final bottomPad = 24.0 + MediaQuery.of(context).padding.bottom;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Aperçu caméra plein écran
-        CameraPreview(camera),
-
-        // Toggle flash en haut à droite
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 12,
-          right: 12,
-          child: IconButton.filled(
-            onPressed: state.busy ? null : ctrl.toggleFlash,
-            icon: Icon(state.flashOn ? Icons.flash_on : Icons.flash_off),
-          ),
-        ),
-
-        // Gros bouton d'obturateur centré au-dessus de la NavigationBar du shell
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: bottomPad,
-          child: Center(
-            child: FloatingActionButton.large(
-              heroTag: 'shutter',
-              onPressed: (!state.busy && state.camera != null && state.hasPermission)
-                  ? () async {
-                      await ctrl.captureAndUpload();
-                      if (!mounted) return;
-                      final err = ref.read(captureControllerProvider).error;
-                      if (err != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $err')),
-                        );
-                      }
-                    }
-                  : null, // null => désactivé
-              child: state.busy
-                  ? const SizedBox(
-                      height: 26, width: 26, child: CircularProgressIndicator(strokeWidth: 3))
-                  : const Icon(Icons.camera_alt, size: 34),
-            ),
-          ),
-        ),
-      ],
+        label: Text(st.busy ? '…' : 'Capture'),
+        icon: const Icon(Icons.camera_alt),
+      ),
     );
   }
 }
