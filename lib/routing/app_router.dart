@@ -1,4 +1,3 @@
-// lib/routing/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,8 +12,8 @@ import '../features/auth/view/login_page.dart';
 import '../features/auth/view/recovery_code_page.dart';
 import '../features/settings/view/settings_page.dart';
 import '../features/auth/controller/auth_controller.dart';
+import '../app/splash_page.dart';
 
-/// Notifie GoRouter quand l’état auth Riverpod change (utile si tu remets un redirect).
 class _GoRouterRefresh extends ChangeNotifier {
   _GoRouterRefresh(this.ref) {
     ref.listen(authControllerProvider, (_, __) => notifyListeners());
@@ -22,33 +21,36 @@ class _GoRouterRefresh extends ChangeNotifier {
   final Ref ref;
 }
 
-/// Provider exposant la config du routeur.
 final appRouterProvider = Provider<GoRouter>((ref) => buildRouter(ref));
 
-/// Fonction top-level (pratique pour les tests).
 GoRouter buildRouter(Ref ref) {
   return GoRouter(
-    initialLocation: '/shell/capture',
+    initialLocation: '/splash',                     // <-- Splash d’abord
     refreshListenable: _GoRouterRefresh(ref),
-    // IMPORTANT : pas de redirection pour laisser les onglets fonctionner.
-    redirect: (_, __) => null,
-
-    /*
-    // Quand tu voudras réactiver la garde d’auth, remets ceci à la place :
     redirect: (context, state) {
       final auth = ref.read(authControllerProvider);
+      final isAuthRoute =
+          state.matchedLocation == '/login' || state.matchedLocation == '/recovery-code';
+
+      // tant que pas initialisé -> reste en splash
+      if (!auth.initialized && state.matchedLocation != '/splash') {
+        return '/splash';
+      }
+
       final loggedIn = auth.accessToken != null;
 
-      final isAuthRoute = state.matchedLocation == '/login'
-                       || state.matchedLocation == '/recovery-code';
-
-      if (!loggedIn && !isAuthRoute) return '/login';
-      if (loggedIn && isAuthRoute) return '/shell/capture';
+      if (!loggedIn && !isAuthRoute && state.matchedLocation != '/splash') {
+        return '/login';
+      }
+      if (loggedIn && isAuthRoute) {
+        return '/shell/capture';
+      }
       return null;
     },
-    */
-
     routes: [
+      // Splash
+      GoRoute(path: '/splash', builder: (_, __) => const SplashPage()),
+
       // Auth & settings
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
       GoRoute(path: '/recovery-code', builder: (_, __) => const RecoveryCodePage()),
@@ -82,7 +84,6 @@ GoRouter buildRouter(Ref ref) {
   );
 }
 
-/// Compat si tu tiens à appeler `AppRouter.build(ref)`
 class AppRouter {
   static GoRouter build(Ref ref) => buildRouter(ref);
 }
