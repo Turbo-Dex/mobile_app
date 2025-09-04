@@ -1,38 +1,49 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import '../model/auth_models.dart';
 
 class AuthApi {
   final Dio _dio;
   AuthApi(this._dio);
 
-  /// Construit un Dio simple basé sur --dart-define=API_BASE_URL.
-  /// Par défaut : Web -> localhost:8000, Android émulateur -> 10.0.2.2:8000.
+  /// Construit un Dio basé sur --dart-define=API_BASE_URL.
+  /// Fallback auto :
+  ///   - Android émulateur : http://10.0.2.2:8000
+  ///   - Autres / Web :     http://localhost:8000
   static Dio buildDio() {
-    final base = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8000');
-    final dio = Dio(BaseOptions(
-      baseUrl: base,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 20),
-    ));
-    dio.interceptors.add(LogInterceptor(
-      request: true, requestBody: true,
-      responseBody: true, responseHeader: false,
-    ));
+    const env = String.fromEnvironment('API_BASE_URL'); // pas de default ici
+    final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    final fallback = isAndroid ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+    final base = env.isNotEmpty ? env : fallback;
+
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: base,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 20),
+      ),
+    );
+
+    dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+      ),
+    );
     return dio;
   }
-
 
   static const _auth = '/v1/auth';
 
   /// Récupère /v1/auth/me en passant un Bearer explicite
   Future<UserMe> meWithToken(String accessToken) async {
     final r = await _dio.get(
-      '/v1/auth/me',
+      '$_auth/me',
       options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
     );
     final data = r.data as Map<String, dynamic>;
-    // normalise snake_case -> camelCase si besoin
     final m = Map<String, dynamic>.from(data);
     if (m.containsKey('display_name')) m['displayName'] = m.remove('display_name');
     if (m.containsKey('avatar_url')) m['avatarUrl'] = m.remove('avatar_url');
@@ -40,32 +51,32 @@ class AuthApi {
     return UserMe.fromJson(m);
   }
 
-
-  /// Login -> renvoie tokens + user (pris de la réponse si dispo, sinon /me)
   Future<LoginResponse> login(LoginRequest req) async {
-    try {
-      final r = await _dio.post('$_auth/login', data: req.toJson());
-      final data = r.data as Map<String, dynamic>;
+    final r = await _dio.post('$_auth/login', data: req.toJson());
+    final data = r.data as Map<String, dynamic>;
 
-      // Ne pas dépendre d'un fromJson qui attend camelCase
-      final tokens = AuthTokens(
-        accessToken: data['access_token'] as String,
-        refreshToken: data['refresh_token'] as String,
-      );
+    final tokens = AuthTokens(
+      accessToken: data['access_token'] as String,
+      refreshToken: data['refresh_token'] as String,
+    );
 
-      final user = (data['user'] != null)
-          ? _parseUser(data['user'])
-          : await _fetchMe(tokens.accessToken);
+    final user = (data['user'] != null)
+        ? _parseUser(data['user'])
+        : await _fetchMe(tokens.accessToken);
 
-      return LoginResponse(tokens: tokens, user: user);
-    } on DioException catch (e) {
-      final code = e.response?.statusCode;
-      final body = e.response?.data;
-      final msg = body is Map
-          ? (body['detail'] ?? body['message'] ?? body.toString())
-          : body?.toString() ?? e.message;
-      throw Exception('LOGIN_HTTP_$code $msg');
-    }
+    return LoginResponse(tokens: tokens, user: user);
+  }
+
+  Future<void> signup({
+    required String username,
+    required String password,
+    String? displayName,
+  }) async {
+    await _dio.post('$_auth/signup', data: {
+      'username': username,
+      'password': password,
+      'display_name': displayName ?? username,
+    });
   }
 
   Future<UserMe> _fetchMe(String accessToken) async {
@@ -78,16 +89,9 @@ class AuthApi {
 
   UserMe _parseUser(dynamic raw) {
     final m = Map<String, dynamic>.from(raw as Map);
-    // Normaliser snake_case -> camelCase attendues par tes modèles
-    if (m.containsKey('display_name')) {
-      m['displayName'] = m.remove('display_name');
-    }
-    if (m.containsKey('avatar_url')) {
-      m['avatarUrl'] = m.remove('avatar_url');
-    }
-    if (m['id'] != null && m['id'] is! String) {
-      m['id'] = m['id'].toString();
-    }
+    if (m.containsKey('display_name')) m['displayName'] = m.remove('display_name');
+    if (m.containsKey('avatar_url')) m['avatarUrl'] = m.remove('avatar_url');
+    if (m['id'] != null && m['id'] is! String) m['id'] = m['id'].toString();
     return UserMe.fromJson(m);
   }
 
