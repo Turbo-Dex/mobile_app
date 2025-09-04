@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';                    // +++
 import '../../profile/controller/profile_controller.dart';
+import '../../auth/controller/auth_controller.dart';           // +++
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
-
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
@@ -34,13 +35,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final c = ref.read(profileControllerProvider.notifier);
+    final profile = ref.read(profileControllerProvider.notifier);
+    final auth = ref.read(authControllerProvider.notifier);    // +++
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // --- Username ---
           TextField(
             controller: _usernameCtrl,
             decoration: const InputDecoration(labelText: 'Username (@handle)'),
@@ -50,22 +53,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () async {
               final v = _usernameCtrl.text.trim();
               if (v.isEmpty) return;
-
-              // Take what you need from context BEFORE awaiting:
               final messenger = ScaffoldMessenger.of(context);
-
-              await c.changeUsername(v);
-
-              // Use the messenger (no context use across await):
-              messenger.showSnackBar(
-                const SnackBar(content: Text('Username updated')),
-              );
+              await profile.changeUsername(v);
+              messenger.showSnackBar(const SnackBar(content: Text('Username updated')));
             },
             child: const Text('Update username'),
           ),
 
           const SizedBox(height: 12),
 
+          // --- Avatar ---
           TextField(
             controller: _avatarCtrl,
             decoration: const InputDecoration(labelText: 'Avatar URL'),
@@ -75,20 +72,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () async {
               final v = _avatarCtrl.text.trim();
               if (v.isEmpty) return;
-
               final messenger = ScaffoldMessenger.of(context);
-
-              await c.changeAvatar(v);
-
-              messenger.showSnackBar(
-                const SnackBar(content: Text('Avatar updated')),
-              );
+              await profile.changeAvatar(v);
+              messenger.showSnackBar(const SnackBar(content: Text('Avatar updated')));
             },
             child: const Text('Update avatar'),
           ),
 
           const SizedBox(height: 12),
 
+          // --- Password ---
           TextField(
             controller: _oldPwdCtrl,
             obscureText: true,
@@ -105,25 +98,43 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               final np = _newPwdCtrl.text.trim();
-
               if (np.length < 8) {
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('Password must be at least 8 chars'),
-                  ),
-                );
+                messenger.showSnackBar(const SnackBar(content: Text('Password must be at least 8 chars')));
                 return;
               }
-
-              await c.changePassword(_oldPwdCtrl.text, np);
+              await profile.changePassword(_oldPwdCtrl.text, np);
               _oldPwdCtrl.clear();
               _newPwdCtrl.clear();
-
-              messenger.showSnackBar(
-                const SnackBar(content: Text('Password updated')),
-              );
+              messenger.showSnackBar(const SnackBar(content: Text('Password updated')));
             },
             child: const Text('Update password'),
+          ),
+
+          const SizedBox(height: 24),
+          const Divider(),
+
+          // --- Sign out ---
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Sign out', style: TextStyle(color: Colors.red)),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: const Text('Sign out?'),
+                  content: const Text('You will need to sign in again.'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                    TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Sign out')),
+                  ],
+                ),
+              );
+              if (confirm != true) return;
+
+              await auth.signOut();              // efface tokens + ping /logout
+              if (!mounted) return;
+              context.go('/login');              // navigation immédiate
+            },
           ),
         ],
       ),
