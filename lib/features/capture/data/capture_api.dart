@@ -26,7 +26,7 @@ class CaptureApi {
     });
 
     final r = await _dio.post(
-      '/images/upload',
+      '/v1/images/upload',
       data: form,
       options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
     );

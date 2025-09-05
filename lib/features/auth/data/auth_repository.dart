@@ -18,5 +18,5 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<RecoveryCode> generateRecoveryCode(String accessToken) =>
       api.generateRecoveryCode(accessToken);
-  
+
 }
