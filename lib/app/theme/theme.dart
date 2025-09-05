@@ -1,40 +1,92 @@
+// lib/app/theme/theme.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'colors.dart';
 
-class TurboDexTheme {
-  static ThemeData light({TextTheme? textTheme}) {
-    final base = ThemeData.light(useMaterial3: true);
-    final colorScheme = base.colorScheme.copyWith(
+class TdxTheme {
+  static ThemeData get light {
+    // Pas de `const` ici : certains champs ne sont pas const (fonts, etc.)
+    final scheme = ColorScheme(
+      brightness: Brightness.light,
       primary: TdxColors.red,
       onPrimary: Colors.white,
-      surface: TdxColors.offWhite,
-      onSurface: TdxColors.black,
+      secondary: TdxColors.black,
+      onSecondary: Colors.white,
       error: TdxColors.error,
       onError: Colors.white,
-      // pas de background/onBackground
+      surface: TdxColors.offWhite,
+      onSurface: TdxColors.textPrimary,
     );
 
-    return base.copyWith(
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: TdxColors.offWhite,
+
+      // Montserrat partout
+      fontFamily: GoogleFonts.montserrat().fontFamily,
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: TdxColors.red,
+        foregroundColor: Colors.white,
         centerTitle: false,
+        elevation: 0,
       ),
-      chipTheme: const ChipThemeData(
-        shape: StadiumBorder(),
-        showCheckmark: false,
-      ),
+
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
         filled: true,
         fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: TdxColors.neutral200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: TdxColors.neutral200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: TdxColors.red, width: 1.6),
+        ),
+        labelStyle: TextStyle(color: TdxColors.textSecondary),
       ),
-      textTheme: textTheme,
+
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: TdxColors.red,
+          foregroundColor: Colors.white,
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: TdxColors.red,
+          foregroundColor: Colors.white,
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: TdxColors.red,
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+
+      // Flutter 3.22+ : cardTheme = CardThemeData
+      cardTheme: const CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
     );
   }
 }
+

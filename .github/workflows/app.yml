@@ -53,3 +53,15 @@ jobs:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
         if: github.event_name != 'pull_request'
+
+
+      # Create GitHub Release and upload APK (for public download link)
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+        with:
+          tag_name: latest
+          release_name: Latest Build
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -20,12 +20,20 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    plugins {
+        id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+        // ✅ Monter AGP & Kotlin
+        id("com.android.application") version "8.6.1"
+        id("org.jetbrains.kotlin.android") version "2.1.0"
+    }
 }
 
 plugins {
-    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.2.2" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+    id("dev.flutter.flutter-plugin-loader")
+    // on n’applique pas AGP/Kotlin ici (apply false), ils sont appliqués dans :app
+    id("com.android.application") apply false
+    id("org.jetbrains.kotlin.android") apply false
 }
 
 include(":app")

@@ -1,21 +1,21 @@
+// lib/app/app.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../routing/app_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/routing/app_router.dart';
 import 'theme/theme.dart';
 
-class TurboDexApp extends StatelessWidget {
+class TurboDexApp extends ConsumerWidget {
   const TurboDexApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final router = AppRouter.build(); // Advanced routing system init
-    return MaterialApp.router( // App entry point
-      title: 'TurboDex', // Metadata
-      theme: TurboDexTheme.light( // Personnalized global theme and style
-        textTheme: GoogleFonts.montserratTextTheme(),
-      ),
-      routerConfig: router, // Define routing between screen
-      debugShowCheckedModeBanner: false, // Hide debug banner
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
+      title: 'TurboDex',
+      debugShowCheckedModeBanner: false,
+      theme: TdxTheme.light,
+      routerConfig: ref.watch(appRouterProvider),
     );
   }
 }
+
+

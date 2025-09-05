@@ -1,0 +1,1 @@
+enum DexSort { number, rarity }
